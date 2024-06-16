@@ -1,0 +1,18 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "types": ["nativewind/types"],
+    "baseUrl": ".", // This tells TypeScript to resolve non-relative module names relative to this directory
+    "paths": {
+      "@/*": ["src/*"] // Maps @ to the src directory at the root of your project
+    },
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "./src/**/*"
+  ]
+}
