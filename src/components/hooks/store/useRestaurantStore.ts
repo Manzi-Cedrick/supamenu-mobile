@@ -1,7 +1,7 @@
 import { IRestaurant } from "@/types";
 import { EXPO_PUBLIC_API_URL } from "@/utils/config";
 import { create } from "zustand";
-import * as SecureStorage from 'expo-secure-store';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface RestaurantState {
     restaurants: IRestaurant[];
@@ -17,8 +17,8 @@ export const useRestaurantStore = create<RestaurantState>(
         restaurants: [],
         fetchRestaurants: async () => {
             try {
-                const token = await SecureStorage.getItemAsync('token');
-                console.log(token)
+                const token = await AsyncStorage.getItem('token');
+                console.log('New token:', token);
                 const response = await fetch(`${EXPO_PUBLIC_API_URL}/restaurants`, {
                     method: 'GET',
                     headers: {
@@ -26,12 +26,9 @@ export const useRestaurantStore = create<RestaurantState>(
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-                // const data = await response.json();
-                const text = await response.text();
-                console.log('Fetch Restaurants Response Text:', text);
 
-                const data = JSON.parse(text);
-                console.log(data);
+                const data = await response.json();
+                console.log('Fetched Data:', data);
                 set({ restaurants: data.body, message: data.message });
             } catch (error) {
                 console.error('Failed to fetch restaurants:', error);
@@ -39,7 +36,7 @@ export const useRestaurantStore = create<RestaurantState>(
         },
         addRestaurant: async (restaurant: IRestaurant) => {
             try {
-                const token = await SecureStorage.getItemAsync('token');
+                const token = await AsyncStorage.getItem('token');
                 const response = await fetch(`${EXPO_PUBLIC_API_URL}/restaurants`, {
                     method: 'POST',
                     body: JSON.stringify(restaurant),
@@ -49,7 +46,7 @@ export const useRestaurantStore = create<RestaurantState>(
                     },
                 });
                 const data = await response.json();
-                console.log(data.body);
+                console.log('Added Restaurant Data:', data.body);
                 set({ restaurants: data.body, message: data.message });
             } catch (error) {
                 console.error('Failed to add restaurant:', error);
@@ -57,7 +54,7 @@ export const useRestaurantStore = create<RestaurantState>(
         },
         removeRestaurant: async (restaurant: IRestaurant) => {
             try {
-                const token = await SecureStorage.getItemAsync('token');
+                const token = await AsyncStorage.getItem('token');
                 const response = await fetch(`${EXPO_PUBLIC_API_URL}/restaurants/${restaurant?._id}`, {
                     method: 'DELETE',
                     headers: {
@@ -66,6 +63,7 @@ export const useRestaurantStore = create<RestaurantState>(
                     },
                 });
                 const data = await response.json();
+                console.log('Removed Restaurant Data:', data);
                 set({ message: data.message });
             } catch (error) {
                 console.error('Failed to remove restaurant:', error);
@@ -73,7 +71,7 @@ export const useRestaurantStore = create<RestaurantState>(
         },
         updateRestaurant: async (restaurant: IRestaurant) => {
             try {
-                const token = await SecureStorage.getItemAsync('token');
+                const token = await AsyncStorage.getItem('token');
                 const response = await fetch(`${EXPO_PUBLIC_API_URL}/restaurants/${restaurant._id}`, {
                     method: 'PUT',
                     body: JSON.stringify(restaurant),
@@ -83,6 +81,7 @@ export const useRestaurantStore = create<RestaurantState>(
                     },
                 });
                 const data = await response.json();
+                console.log('Updated Restaurant Data:', data.body);
                 set({ restaurants: data.body, message: data.message });
             } catch (error) {
                 console.error('Failed to update restaurant:', error);

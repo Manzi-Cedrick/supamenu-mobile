@@ -1,22 +1,26 @@
-import { Image, Pressable, ScrollView } from 'react-native'
-import React, { useEffect } from 'react'
-import { router, usePathname } from 'expo-router'
-import FontAwesome from '@expo/vector-icons/FontAwesome'
-import { useRestaurantStore } from '@/components/hooks/store/useRestaurantStore'
-import { useMenuStore } from '@/components/hooks/store/useMenuStore'
-import NestedNavigationHeader from '@/components/section-heading/navigate-header'
-import { Text, View } from '@/components/shared/Themed'
+import { Image, Pressable, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { router, usePathname } from 'expo-router';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useRestaurantStore } from '@/components/hooks/store/useRestaurantStore';
+import { useMenuStore } from '@/components/hooks/store/useMenuStore';
+import NestedNavigationHeader from '@/components/section-heading/navigate-header';
+import { Text, View } from '@/components/shared/Themed';
+import { IMenu } from '@/types';
 
 const RestaurantIndex = () => {
     const data = usePathname();
     const { restaurants } = useRestaurantStore();
     const { fetchMenus, menus } = useMenuStore();
-    const restaurant = restaurants.find((item) => item.title === data.slice(1));
+
     useEffect(() => {
-        fetchMenus()
-    }, [])
-    const menu = menus.filter((item) => item.restaurantId === restaurant?._id);
-    console.log(menu)
+        fetchMenus();
+    }, []);
+
+    const restaurantTitle = data.slice(1);
+    const restaurant = restaurants.find((item) => item.title === decodeURI(restaurantTitle));
+    const menu = menus.filter((item: IMenu) => item.restaurantId === restaurant?._id);
+
     return (
         <ScrollView className='bg-white flex flex-1 flex-col p-8 pt-16'>
             <NestedNavigationHeader navigateBack={() => router.replace('/(home)/(tabs)/restaurants')} />
@@ -24,7 +28,7 @@ const RestaurantIndex = () => {
                 <View className="flex justify-center pt-4 items-center">
                     <Image className="rounded-md w-full h-40 bg-cover" source={{ uri: restaurant?.thumbnail }} />
                 </View>
-                <Text className='text-xl font-bold mt-4'>{data.slice(1)}</Text>
+                <Text className='text-xl font-bold mt-4'>{decodeURI(restaurantTitle)}</Text>
                 <Text className='text-gray-400 pt-2'>{restaurant?.description}</Text>
                 <View className="flex flex-row py-4">
                     {restaurant?.rating ? [1, 2, 3, 4, 5].map((index) => (
@@ -44,22 +48,23 @@ const RestaurantIndex = () => {
             <View>
                 <Text className='text-lg font-semibold text-black mt-4'>Menu</Text>
                 <View>
-                    {menu.map((item, index) => {
-                        console.log(item.name)
-                        return (
-                            <Pressable onPress={() => router.replace(`/(home)/(product)/${item._id.toString()}`)} key={index} className='flex flex-row justify-start items-center border-b border-gray-200 py-4'>
-                                <Image className='h-12 w-12 border border-primary rounded-md' source={{ uri: item.icon }} />
-                                <View className='ml-4'>
-                                    <Text className='font-semibold'>{item.name}</Text>
-                                    <Text className='text-gray-400'>{item.description}</Text>
-                                </View>
-                            </Pressable>
-                        )
-                    })}
+                    {menu.map((item, index) => (
+                        <Pressable
+                            onPress={() => router.replace(`/(home)/(product)/${item._id.toString()}`)}
+                            key={index}
+                            className='flex flex-row justify-start items-center border-b border-gray-200 py-4'
+                        >
+                            <Image className='h-12 w-12 border border-primary rounded-md' source={{ uri: item.icon }} />
+                            <View className='ml-4'>
+                                <Text className='font-semibold'>{item.name}</Text>
+                                <Text className='text-gray-400'>{item.description}</Text>
+                            </View>
+                        </Pressable>
+                    ))}
                 </View>
             </View>
         </ScrollView>
-    )
-}
+    );
+};
 
-export default RestaurantIndex
+export default RestaurantIndex;

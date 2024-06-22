@@ -1,7 +1,7 @@
 import { IMenu } from "@/types";
 import { EXPO_PUBLIC_API_URL } from "@/utils/config";
 import { create } from "zustand";
-import * as SecureStorage from 'expo-secure-store';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface MenuState {
     menus: IMenu[];
@@ -12,26 +12,28 @@ interface MenuState {
     fetchMenus: () => Promise<void>;
 }
 
-const token = SecureStorage.getItemAsync('token');
 export const useMenuStore = create<MenuState>(
     set => ({
         menus: [],
         fetchMenus: async () => {
-            // console.log(token)
+            const token = await AsyncStorage.getItem('token');
+            console.log('New token:', token);
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/menus`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     // @ts-ignore
-                    'Authorization': `Bearer ${token?._j}`,
+                    'Authorization': `Bearer ${token}`,
                     
                 }
             })
             const data = await response.json()
-            // console.log(data)
+            console.log('Fetched data menus: ' + data.body)
             set({ menus: data.body, message: data.message })
         },
         addMenu: async (menu: IMenu) => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/menus`, {
                 method: 'POST',
                 body: JSON.stringify(menu),
@@ -45,6 +47,8 @@ export const useMenuStore = create<MenuState>(
             set({ menus: data.body, message: data.message })
         },
         removeMenu: async (menu: IMenu) => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/menus/${menu?._id}`, {
                 method: 'DELETE',
                 headers: {
@@ -56,6 +60,8 @@ export const useMenuStore = create<MenuState>(
             set({ message: data.message })
         },
         updateMenu: async (menu: IMenu) => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/menus/${menu._id}`, {
                 method: 'PUT',
                 body: JSON.stringify(menu),

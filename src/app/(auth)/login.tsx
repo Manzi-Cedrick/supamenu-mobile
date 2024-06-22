@@ -2,54 +2,43 @@ import { View, Text, Image, ScrollView, TouchableHighlight } from 'react-native'
 import React, { useState } from 'react'
 import { Link, router } from 'expo-router'
 import LogoHeader from '@/components/section-heading/logo-header'
-import { ILogin } from '@/types'
 import { useAuthStore } from '@/components/hooks/store/useAuthStore'
-import * as SecureStorage from 'expo-secure-store';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AuthHeader from '@/components/section-heading/auth-header'
 import InputField from '@/components/shared/InputField'
 import CustomButton from '@/components/shared/CustomButton'
-import * as Yup from 'yup';
-import { AntDesign } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
-
+import { z } from 'zod'
+import { Controller, useForm } from 'react-hook-form'
+import ShortError from '@/components/shared/ShortError'
+import { zodResolver } from '@hookform/resolvers/zod'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Login = () => {
   const [isSubmitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState<ILogin>({
-    email: '',
-    password: ''
-  })
-  const [error, setError] = useState<string>('')
   const { login } = useAuthStore()
 
-  const validateSchema = Yup.object().shape({
-    email: Yup.string().email('Invalid email format').required('Email is required'),
-    password: Yup.string().min(6, 'Password must atleast 6 characters!').required('Password is required')
-  })
-  const validateForm = async (data: ILogin) => {
-    try {
-      await validateSchema.validate(data, { abortEarly: false })
-      setError('')
-      return true
-    } catch (error: any) {
-      console.log(error)
-      setError(error.errors[0])
-      return false
-    }
-  }
-  const handleSubmit = async () => {
-    const isValid = await validateForm(formData);
-    if (!isValid) {
-      return;
-    }
+  const validateSchema = z.object({
+    email: z.string().email('Invalid email format').min(6, { message: 'Email must be at least 6 characters!' }),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters!' })
+  });
+
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(validateSchema),
+    mode: 'onChange'
+  });
+
+
+  const onSubmit = async (data: any) => {
     setSubmitting(true);
 
     try {
-      const data = await login(formData.email, formData.password);
-      if (data.body && data.token) {
-        await SecureStorage.setItemAsync('user', JSON.stringify(data.body));
-        await SecureStorage.setItemAsync('token', data.token);
+      console.log('The data:', data)
+      const response = await login(data.email, data.password);
+      console.log('The data response: ', data)
+      if (response.body && response.token) {
+         AsyncStorage.setItem('user', JSON.stringify(response.body));
+         AsyncStorage.setItem('token', response.token);
         Toast.show({
           type: 'success',
           text1: 'Welcome, successful login! 👋'
@@ -58,14 +47,16 @@ const Login = () => {
       } else {
         Toast.show({
           type: 'error',
-          text1: ` ${data?.message} 😡 `
+          text1: ` ${response?.message} 😡 `
         });
       }
       console.log('Reach')
-      console.log(data);
+      console.log(response);
     } catch (error: any) {
-      console.log('Login error:', error.message);
-      setError('An unexpected error occurred during login. Please try again.');
+      Toast.show({
+        type: 'error',
+        text1: 'An unexpected error occurred during login. Please try again.'
+      });
     } finally {
       setSubmitting(false);
     }
@@ -77,29 +68,46 @@ const Login = () => {
         <LogoHeader />
         <AuthHeader title='Welcome back,' description='Feel free to check out, our latest updates !' />
         <View>
-          <InputField
-            title="Email"
-            value={formData.email}
-            handleChangeText={(e) => setFormData({ ...formData, email: e })}
-            placeholder='Enter your email'
-            keyboardType='email-address'
-            prefix='envelope-o'
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                title="Email"
+                value={value}
+                placeholder='Enter your email'
+                handleChangeText={onChange}
+                otherStyles='mt-4'
+                prefix='envelope-o'
+              />
+            )}
+            name='email'
+            rules={{ required: 'Email is required' }}
           />
-          <InputField
-            title="Password"
-            value={formData.password}
-            placeholder='Enter your password'
-            handleChangeText={(e) => setFormData({ ...formData, password: e })}
-            otherStyles='mt-4'
-            prefix='key'
+
+          {errors.email?.message && typeof errors.email.message === 'string' && (
+            <ShortError error={errors.email.message} />
+          )}
+          <Controller
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <InputField
+                title="Password"
+                value={value}
+                placeholder='Enter your password'
+                handleChangeText={onChange}
+                otherStyles='mt-4'
+                prefix='lock'
+              />
+            )}
+            name='password'
+            rules={{ required: 'Password is required' }}
           />
-          {error && <View className='flex flex-1 flex-row items-center mt-4 justify-start'>
-            <AntDesign name='warning' size={16} color='red' />
-            <Text className='text-red-500 font-medium text-sm ml-4'>{error}</Text>
-          </View>}
+          {errors.password?.message && typeof errors.password.message === 'string' && (
+            <ShortError error={errors.password.message} />
+          )}
           <CustomButton
             title="Sign In"
-            handlePress={handleSubmit}
+            handlePress={handleSubmit(onSubmit)}
             containerStyles="bg-primary text-white mt-4"
             isLoading={isSubmitting}
           />

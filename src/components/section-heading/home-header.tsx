@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { router } from 'expo-router';
 import { useCartStore } from '@/components/hooks/store/useCartStore';
 import { useAuthStore } from '@/components/hooks/store/useAuthStore';
-import * as SecureStorage from 'expo-secure-store';
 import { Appbar, Avatar } from 'react-native-paper';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 import { getInitials } from '@/utils/utilities';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeTabHeader = () => {
     const { cart } = useCartStore();
@@ -23,8 +23,8 @@ const HomeTabHeader = () => {
     const initials = getInitials(fullName);
     const handleLogout = () => {
         logout();
-        SecureStorage.deleteItemAsync('user');
-        SecureStorage.deleteItemAsync('token');
+        AsyncStorage.removeItem('user');
+        AsyncStorage.removeItem('token');
         router.push('/(auth)/login');
     };
 
@@ -33,7 +33,7 @@ const HomeTabHeader = () => {
     };
 
     return (
-        <View className='flex flex-row bg-white justify-between items-center place-items-center px-4 pt-16 border-b border-slate-100'>
+        <View className='flex flex-row bg-white justify-between items-center place-items-center px-4 pt-6 border-b border-slate-100'>
             <View className='flex flex-row items-center place-items-center'>
                 <Avatar.Text size={24} label={initials} color='white' style={{ backgroundColor: "#cccccc" }} />
                 <View className='ml-2'>

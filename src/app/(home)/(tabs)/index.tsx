@@ -7,6 +7,7 @@ import SingleProduct from "@/components/home-section-dishes/product-dish";
 import SemiHeading from "@/components/section-heading/semi-heading";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import HomeTabHeader from "@/components/section-heading/home-header";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const restoAdImage = require("@/assets/images/resto-ad.png");
 const product1 = require("@/assets/images/products/product1.png");
 const product2 = require("@/assets/images/products/product2.png");

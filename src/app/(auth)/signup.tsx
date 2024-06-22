@@ -8,51 +8,37 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import AuthHeader from '@/components/section-heading/auth-header'
 import InputField from '@/components/shared/InputField'
 import CustomButton from '@/components/shared/CustomButton'
-import * as Yup from 'yup';
 import { AntDesign } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
 import { StatusBar } from 'expo-status-bar'
-
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm } from 'react-hook-form'
+import ShortError from '@/components/shared/ShortError'
 
 const Signup = () => {
     const [isSubmitting, setSubmitting] = useState(false);
-    const [formData, setFormData] = useState<IUser>({
-        email: '',
-        password: '',
-        fullName: '',
-        telephone: '',
-        role: 'user'
-    })
+    const { register } = useAuthStore();
 
-    const [error, setError] = useState<string>('')
-    const { register } = useAuthStore()
+    const validateSchema = z.object({
+        email: z.string().email('Invalid email format').min(6, { message: 'Email must be at least 6 characters!' }),
+        password: z.string().min(6, { message: 'Password must be at least 6 characters!' }),
+        fullName: z.string().min(3, { message: 'Full name must be at least 3 characters!' }),
+        telephone: z.string().min(10, { message: 'Telephone must be at least 10 characters!' })
+    });
 
-    const validateSchema = Yup.object().shape({
-        email: Yup.string().email('Invalid email format').required('Email is required'),
-        password: Yup.string().min(6, 'Password must atleast 6 characters!').required('Password is required'),
-        fullName: Yup.string().required('Full name is required'),
-        telephone: Yup.string().required('Telephone is required')
-    })
-    const validateForm = async (data: ILogin) => {
-        try {
-            await validateSchema.validate(data, { abortEarly: false })
-            setError('')
-            return true
-        } catch (error: any) {
-            console.log(error)
-            setError(error.errors[0])
-            return false
-        }
-    }
-    const handleSubmit = async () => {
-        const isValid = await validateForm(formData);
-        if (!isValid) {
-            return;
-        }
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        resolver: zodResolver(validateSchema),
+        mode: 'onChange'
+    });
+
+    const onSubmit = async (data: any) => {
         setSubmitting(true);
         try {
-            const data = await register(formData);
-            if (data.body) {
+            data.role = 'user';
+            console.log('the data:', data)
+            const response = await register(data);
+            if (response.message === 'User created successfully' && response.body !== null) {
                 Toast.show({
                     type: 'success',
                     text1: 'Welcome, successful login! 👋'
@@ -61,66 +47,109 @@ const Signup = () => {
             } else {
                 Toast.show({
                     type: 'error',
-                    text1: ` ${data?.message} 😡 `
+                    text1: ` ${response?.message} 😡 `
                 });
             }
-            console.log(data);
+            console.log(response);
         } catch (error: any) {
-            console.log('Login error:', error.message);
-            setError('An unexpected error occurred during login. Please try again.');
+            Toast.show({
+                type: 'error',
+                text1: 'An unexpected error occurred during login. Please try again.'
+            });
         } finally {
             setSubmitting(false);
         }
     }
+
     return (
-        <SafeAreaView className='flex flex-1 h-screen bg-primary flex-col-revese'>
+        <SafeAreaView className='flex flex-1 h-screen bg-primary flex-col-reverse'>
             <StatusBar style='light' />
             <View className='h-6' />
             <ScrollView className='bg-white rounded-t-xl py-4 px-6' style={{ height: "50%" }}>
                 <LogoHeader />
                 <AuthHeader title='Enjoy now,' description='Feel free to enjoy, order best meals !' />
                 <View>
-                    <InputField
-                        title="Full Name"
-                        value={formData.fullName}
-                        handleChangeText={(e) => setFormData({ ...formData, fullName: e })}
-                        placeholder='Enter your full name'
-                        prefix='user'
-                    />
-                    <InputField
-                        title="Email"
-                        value={formData.email}
-                        handleChangeText={(e) => setFormData({ ...formData, email: e })}
-                        placeholder='Enter your email'
-                        keyboardType='email-address'
-                        prefix='envelope-o'
-                        otherStyles='mt-4'
-                    />
-                    <InputField
-                        title="Telephone"
-                        value={formData.telephone}
-                        handleChangeText={(e) => setFormData({ ...formData, telephone: e })}
-                        placeholder='Enter your telephone'
-                        keyboardType='phone-pad'
-                        prefix='phone'
-                        otherStyles='mt-4'
-                    />
-                    <InputField
-                        title="Password"
-                        value={formData.password}
-                        placeholder='Enter your password'
-                        handleChangeText={(e) => setFormData({ ...formData, password: e })}
-                        otherStyles='mt-4'
-                        prefix='key'
+                    <Controller
+                        control={control}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <InputField
+                                title="Full Name"
+                                value={value}
+                                handleChangeText={onChange}
+                                placeholder='Enter your full name'
+                                prefix='user'
+                                onBlur={onBlur}
+                            />
+                        )}
+                        name='fullName'
                     />
 
-                    {error && <View className='flex flex-1 flex-row items-center mt-2 justify-start'>
-                        <AntDesign name='warning' size={16} color='red' />
-                        <Text className='text-red-500 font-medium text-sm ml-4'>{error}</Text>
-                    </View>}
+                    {errors.fullName?.message && typeof errors.fullName.message === 'string' && (
+                        <ShortError error={errors.fullName.message} />
+                    )}
+                    <Controller
+                        control={control}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <InputField
+                                title="Email"
+                                value={value}
+                                handleChangeText={onChange}
+                                placeholder='Enter your email'
+                                keyboardType='email-address'
+                                prefix='envelope-o'
+                                otherStyles='mt-4'
+                                onBlur={onBlur}
+                            />
+                        )}
+                        name='email'
+                    />
+
+                    {errors.email?.message && typeof errors.email.message === 'string' && (
+                        <ShortError error={errors.email.message} />
+                    )}
+                    <Controller
+                        control={control}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <InputField
+                                title="Telephone"
+                                value={value}
+                                handleChangeText={onChange}
+                                placeholder='Enter your telephone'
+                                keyboardType='phone-pad'
+                                prefix='phone'
+                                otherStyles='mt-4'
+                                onBlur={onBlur}
+                            />
+                        )}
+                        name='telephone'
+                    />
+
+                    {errors.telephone?.message && typeof errors.telephone.message === 'string' && (
+                        <ShortError error={errors.telephone.message} />
+                    )}
+                    <Controller
+                        control={control}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <InputField
+                                title="Password"
+                                value={value}
+                                handleChangeText={onChange}
+                                placeholder='Enter your password'
+                                otherStyles='mt-4'
+                                prefix='key'
+                                onBlur={onBlur}
+                            />
+                        )}
+                        name='password'
+                    />
+
+                    {errors.password?.message && typeof errors.password.message === 'string' && (
+                        <ShortError error={errors.password.message} />
+                    )}
+
                     <CustomButton
                         title="Register"
-                        handlePress={handleSubmit}
+                        handlePress={handleSubmit(onSubmit)}
                         containerStyles="bg-primary text-white mt-2"
                         isLoading={isSubmitting}
                     />
