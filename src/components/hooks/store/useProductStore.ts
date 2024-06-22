@@ -1,7 +1,7 @@
 import { IProduct } from "@/types";
 import { create } from "zustand";
-import * as SecureStorage from 'expo-secure-store'
 import { EXPO_PUBLIC_API_URL } from "@/utils/config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 interface ProductState {
     products: IProduct[];
     message: string;
@@ -11,18 +11,19 @@ interface ProductState {
     fetchProducts: () => Promise<void>;
 }
 
-const token = SecureStorage.getItemAsync('token');
 
 export const useProductStore = create<ProductState>(
     set => ({
         products: [],
         fetchProducts: async () => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/products`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     // @ts-ignore
-                    'Authorization': `Bearer ${token?._j}`,
+                    'Authorization': `Bearer ${token}`,
                     
                 }
             })
@@ -31,6 +32,8 @@ export const useProductStore = create<ProductState>(
             set({ products: data.body, message: data.message })
         },
         addProduct: async (product: IProduct) => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/products`, {
                 method: 'POST',
                 body: JSON.stringify(product),
@@ -44,6 +47,8 @@ export const useProductStore = create<ProductState>(
             set({ products: data.body, message: data.message })
         },
         removeProduct: async (product: IProduct) => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/products/${product?._id}`, {
                 method: 'DELETE',
                 headers: {
@@ -55,6 +60,8 @@ export const useProductStore = create<ProductState>(
             set({ message: data.message })
         },
         updateProduct: async (product: IProduct) => {
+            const token = await AsyncStorage.getItem('token');
+
             const response = await fetch(`${EXPO_PUBLIC_API_URL}/products/${product._id}`, {
                 method: 'PUT',
                 body: JSON.stringify(product),

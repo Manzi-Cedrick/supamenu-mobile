@@ -19,6 +19,7 @@ const InputField: React.FC<InputFieldProps> = ({
     handleChangeText,
     otherStyles,
     prefix,
+    error,
     ...props
 }: {
     title: string,
@@ -27,6 +28,7 @@ const InputField: React.FC<InputFieldProps> = ({
     handleChangeText: (text: string) => void,
     otherStyles?: string,
     prefix?: string,
+    error?: string,
     props?: any
 }) => {
     const [showPassword, setShowPassword] = useState(false);

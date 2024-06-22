@@ -1,1 +1,1 @@
-export const EXPO_PUBLIC_API_URL = 'http://localhost:8080/api/v1';
+export const EXPO_PUBLIC_API_URL = 'http://10.5.222.248:8080/api/v1';

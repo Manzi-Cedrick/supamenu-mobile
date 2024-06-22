@@ -14,7 +14,7 @@ const ProductIndex = () => {
     const { fetchProducts, products } = useProductStore();
     const { menus } = useMenuStore();
     const { addToCart } = useCartStore();
-    const menu = menus.find((item) => item._id === data.slice(1));
+    const menu = menus.find((item) => item._id === decodeURI(data.slice(1)));
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -74,6 +74,7 @@ const ProductIndex = () => {
                 <Text className='text-lg font-semibold text-black mt-4'>Products</Text>
                 <View>
                     {productList.map((item, index) => {
+                        console.log('Product: ', item.thumbnail);
                         return (
                             <View key={index} className='flex flex-row justify-start items-center border-b border-gray-200 py-4'>
                                 <Image className='h-12 w-12 border border-primary rounded-md' source={{ uri: item.thumbnail }} />
@@ -84,7 +85,7 @@ const ProductIndex = () => {
                                         <Text className='font-semibold text-primary'>${item.price}</Text>
                                     </View>
                                 </View>
-                                <View className='flex flex-col justify-center place-items-center items-center'>
+                                <View className='flex flex-row justify-center place-items-center items-center'>
                                     <Pressable onPress={() => handleQuantityChange(index, -1)}
                                         className={`border border-gray-300 h-8 w-8 flex items-center justify-center rounded-full ${item.quantity === 0 ? 'opacity-50 bg-zinc-100' : 'opacity-100'}`}
                                         disabled={item.quantity === 0}
