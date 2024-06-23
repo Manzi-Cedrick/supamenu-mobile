@@ -1,7 +1,7 @@
-import { Text, TouchableOpacity } from 'react-native'
+import {  TouchableOpacity } from 'react-native'
 import React from 'react'
 import { ActivityIndicator } from 'react-native-paper';
-
+import { Text } from '@/components/shared/Themed';
 const CustomButton = ({
     title,
     handlePress,
@@ -24,7 +24,7 @@ const CustomButton = ({
         }`}
         disabled={isLoading}
       >
-        <Text className={`text-white font-semibold text-sm ${textStyles}`}>
+        <Text className={`text-white font-PoppinsSemiBold text-sm ${textStyles}`}>
           {title}
         </Text>
   

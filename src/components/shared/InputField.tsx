@@ -1,7 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useState } from "react";
-import { Pressable, Text, TextInput, TextInputProps, TouchableOpacity, View } from "react-native";
-
+import { Pressable, TextInput, TextInputProps, TouchableOpacity } from "react-native";
+import { View, Text} from '@/components/shared/Themed';
 interface InputFieldProps extends TextInputProps {
     title: string;
     value: string;

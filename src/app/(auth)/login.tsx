@@ -1,5 +1,5 @@
-import { View, Text, Image, ScrollView, TouchableHighlight } from 'react-native'
-import React, { useState } from 'react'
+import { Image, Pressable, ScrollView, TouchableHighlight } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { Link, router } from 'expo-router'
 import LogoHeader from '@/components/section-heading/logo-header'
 import { useAuthStore } from '@/components/hooks/store/useAuthStore'
@@ -13,6 +13,8 @@ import { Controller, useForm } from 'react-hook-form'
 import ShortError from '@/components/shared/ShortError'
 import { zodResolver } from '@hookform/resolvers/zod'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Text, View } from '@/components/shared/Themed'
+import Animated, { Easing, FadeInLeft, FadeInRight, Layout } from 'react-native-reanimated'
 
 const Login = () => {
   const [isSubmitting, setSubmitting] = useState(false);
@@ -23,11 +25,14 @@ const Login = () => {
     password: z.string().min(6, { message: 'Password must be at least 6 characters!' })
   });
 
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, handleSubmit, formState: { errors },trigger } = useForm({
     resolver: zodResolver(validateSchema),
     mode: 'onChange'
   });
 
+  useEffect(() => {
+    trigger();
+  }, [trigger]);
 
   const onSubmit = async (data: any) => {
     setSubmitting(true);
@@ -61,13 +66,22 @@ const Login = () => {
       setSubmitting(false);
     }
   }
+
+  
   return (
-    <SafeAreaView className='flex flex-1 h-screen bg-primary flex-col-revese'>
-      <View className='h-20' />
-      <ScrollView className='bg-white rounded-t-xl py-4 px-4' style={{ height: "50%" }}>
-        <LogoHeader />
+      <ScrollView className='bg-white flex flex-1 rounded-t-xl py-4 px-6'>
+        <Pressable onPress={() => router.push('/')}>
+            <Animated.View key={'UniqueKey102'} entering={FadeInLeft.duration(500)} exiting={FadeInRight.duration(500)} className='flex fixed flex-row pt-10 justify-center items-center'>
+                <Image source={require('@/assets/images/icon.png')} className="w-12 h-12 rounded-md" />
+                <Text className='text-xl font-PoppinsBold text-primary'>Supa<Text className='text-black font-PoppinsSemiBold'>Menu</Text></Text>
+            </Animated.View>
+        </Pressable>
         <AuthHeader title='Welcome back,' description='Feel free to check out, our latest updates !' />
-        <View>
+        <Animated.View
+          key={'UniqueKey101'}
+          entering={FadeInLeft.duration(500).easing(Easing.inOut(Easing.ease))}
+          exiting={FadeInRight.duration(500).easing(Easing.inOut(Easing.ease))}
+        >
           <Controller
             control={control}
             render={({ field: { onChange, value } }) => (
@@ -129,7 +143,7 @@ const Login = () => {
               <Text className='text-slate-700 font-medium ml-4'>Continue with Google</Text>
             </View>
           </TouchableHighlight>
-        </View>
+        </Animated.View>
 
         <View>
           <Text className='text-center mt-4 text-slate-500'>
@@ -137,7 +151,6 @@ const Login = () => {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
   )
 }
 

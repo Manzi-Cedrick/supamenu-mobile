@@ -7,7 +7,14 @@ module.exports = {
     extend: {
       backgroundImage: {
         'ad-pattern': "url('@/assets/images/resto-ad.png')",
-      }
+      },
+      fontFamily: {
+        PoppinsBold: ['Poppins-Bold'],
+        PoppinsMedium: ['Poppins-Medium'],
+        PoppinsSemiBold: ['Poppins-SemiBold'],
+        PoppinsLight: ['Poppins-Light'],
+        PoppinsExtraLight: ['Poppins-ExtraLight'],
+      },
     },
     colors: {
       primary: '#F7941C',
@@ -17,4 +24,3 @@ module.exports = {
   },
   plugins: [],
 }
-

@@ -1,20 +1,19 @@
-import { View, Text, Image, ScrollView, TouchableHighlight } from 'react-native'
+import { ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { Link, router } from 'expo-router'
 import LogoHeader from '@/components/section-heading/logo-header'
-import { ILogin, IUser } from '@/types'
 import { useAuthStore } from '@/components/hooks/store/useAuthStore'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import AuthHeader from '@/components/section-heading/auth-header'
 import InputField from '@/components/shared/InputField'
 import CustomButton from '@/components/shared/CustomButton'
-import { AntDesign } from '@expo/vector-icons'
 import Toast from 'react-native-toast-message'
 import { StatusBar } from 'expo-status-bar'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form'
 import ShortError from '@/components/shared/ShortError'
+import { Text, View } from '@/components/shared/Themed'
 
 const Signup = () => {
     const [isSubmitting, setSubmitting] = useState(false);
@@ -62,106 +61,103 @@ const Signup = () => {
     }
 
     return (
-        <SafeAreaView className='flex flex-1 h-screen bg-primary flex-col-reverse'>
-            <StatusBar style='light' />
-            <View className='h-6' />
-            <ScrollView className='bg-white rounded-t-xl py-4 px-6' style={{ height: "50%" }}>
-                <LogoHeader />
-                <AuthHeader title='Enjoy now,' description='Feel free to enjoy, order best meals !' />
-                <View>
-                    <Controller
-                        control={control}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <InputField
-                                title="Full Name"
-                                value={value}
-                                handleChangeText={onChange}
-                                placeholder='Enter your full name'
-                                prefix='user'
-                                onBlur={onBlur}
-                            />
-                        )}
-                        name='fullName'
-                    />
 
-                    {errors.fullName?.message && typeof errors.fullName.message === 'string' && (
-                        <ShortError error={errors.fullName.message} />
+        <ScrollView className='bg-white rounded-t-xl py-4 px-6 flex flex-1 h-screen'>
+            <LogoHeader />
+            <AuthHeader title='Enjoy now,' description='Feel free to enjoy, order best meals !' />
+            <View>
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <InputField
+                            title="Full Name"
+                            value={value}
+                            handleChangeText={onChange}
+                            placeholder='Enter your full name'
+                            prefix='user'
+                            onBlur={onBlur}
+                        />
                     )}
-                    <Controller
-                        control={control}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <InputField
-                                title="Email"
-                                value={value}
-                                handleChangeText={onChange}
-                                placeholder='Enter your email'
-                                keyboardType='email-address'
-                                prefix='envelope-o'
-                                otherStyles='mt-4'
-                                onBlur={onBlur}
-                            />
-                        )}
-                        name='email'
-                    />
+                    name='fullName'
+                />
 
-                    {errors.email?.message && typeof errors.email.message === 'string' && (
-                        <ShortError error={errors.email.message} />
+                {errors.fullName?.message && typeof errors.fullName.message === 'string' && (
+                    <ShortError error={errors.fullName.message} />
+                )}
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <InputField
+                            title="Email"
+                            value={value}
+                            handleChangeText={onChange}
+                            placeholder='Enter your email'
+                            keyboardType='email-address'
+                            prefix='envelope-o'
+                            otherStyles='mt-4'
+                            onBlur={onBlur}
+                        />
                     )}
-                    <Controller
-                        control={control}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <InputField
-                                title="Telephone"
-                                value={value}
-                                handleChangeText={onChange}
-                                placeholder='Enter your telephone'
-                                keyboardType='phone-pad'
-                                prefix='phone'
-                                otherStyles='mt-4'
-                                onBlur={onBlur}
-                            />
-                        )}
-                        name='telephone'
-                    />
+                    name='email'
+                />
 
-                    {errors.telephone?.message && typeof errors.telephone.message === 'string' && (
-                        <ShortError error={errors.telephone.message} />
+                {errors.email?.message && typeof errors.email.message === 'string' && (
+                    <ShortError error={errors.email.message} />
+                )}
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <InputField
+                            title="Telephone"
+                            value={value}
+                            handleChangeText={onChange}
+                            placeholder='Enter your telephone'
+                            keyboardType='phone-pad'
+                            prefix='phone'
+                            otherStyles='mt-4'
+                            onBlur={onBlur}
+                        />
                     )}
-                    <Controller
-                        control={control}
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <InputField
-                                title="Password"
-                                value={value}
-                                handleChangeText={onChange}
-                                placeholder='Enter your password'
-                                otherStyles='mt-4'
-                                prefix='key'
-                                onBlur={onBlur}
-                            />
-                        )}
-                        name='password'
-                    />
+                    name='telephone'
+                />
 
-                    {errors.password?.message && typeof errors.password.message === 'string' && (
-                        <ShortError error={errors.password.message} />
+                {errors.telephone?.message && typeof errors.telephone.message === 'string' && (
+                    <ShortError error={errors.telephone.message} />
+                )}
+                <Controller
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <InputField
+                            title="Password"
+                            value={value}
+                            handleChangeText={onChange}
+                            placeholder='Enter your password'
+                            otherStyles='mt-4'
+                            prefix='key'
+                            onBlur={onBlur}
+                        />
                     )}
+                    name='password'
+                />
 
-                    <CustomButton
-                        title="Register"
-                        handlePress={handleSubmit(onSubmit)}
-                        containerStyles="bg-primary text-white mt-2"
-                        isLoading={isSubmitting}
-                    />
-                </View>
+                {errors.password?.message && typeof errors.password.message === 'string' && (
+                    <ShortError error={errors.password.message} />
+                )}
 
-                <View>
-                    <Text className='text-center mt-4 text-slate-500'>
-                        Already have an account ? <Link href={'/(auth)/login'} className='text-primary font-medium'>Login</Link>
-                    </Text>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                <CustomButton
+                    title="Register"
+                    handlePress={handleSubmit(onSubmit)}
+                    containerStyles="bg-primary text-white mt-2"
+                    isLoading={isSubmitting}
+                />
+            </View>
+
+            <View>
+                <Text className='text-center mt-4 text-slate-500'>
+                    Already have an account ? <Link href={'/(auth)/login'} className='text-primary font-medium'>Login</Link>
+                </Text>
+            </View>
+        </ScrollView>
     )
 }
 
