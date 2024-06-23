@@ -1,13 +1,11 @@
 import { Text, View } from "@/components/shared/Themed";
-// import Carousel from 'react-native-snap-carousel';
 import { FlatList, Image, ImageBackground, Pressable, ScrollView } from "react-native";
 import React from "react";
 import { router } from 'expo-router';
 import SingleProduct from "@/components/home-section-dishes/product-dish";
 import SemiHeading from "@/components/section-heading/semi-heading";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import HomeTabHeader from "@/components/section-heading/home-header";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const restoAdImage = require("@/assets/images/resto-ad.png");
 const product1 = require("@/assets/images/products/product1.png");
 const product2 = require("@/assets/images/products/product2.png");
@@ -22,9 +20,6 @@ const products = [
 ];
 
 export default function HomeScreen() {
-  const carouselRef = React.useRef(null);
-
-
   return (
     <ScrollView className='bg-white px-4 py-4 flex flex-1'>
       <ImageBackground
@@ -34,14 +29,14 @@ export default function HomeScreen() {
         <Text className="text-white opacity-90 font-medium">
           Best burgers in town,
         </Text>
-        <Text className="text-lg text-white font-black">
+        <Text className="text-lg text-white font-PoppinsBold">
           Special Offer
         </Text>
         <Pressable
-          className="mt-3 rounded-3xl bg-white/30 w-36 py-3 px-4"
+          className="mt-3 rounded-3xl bg-white/30 w-24 py-2 "
           onPress={() => router.push("/cart")}
         >
-          <Text className="text-white text-center font-bold">
+          <Text className="text-white text-center text-[12px] font-PoppinsBold">
             Order Now
           </Text>
         </Pressable>
@@ -97,7 +92,7 @@ export default function HomeScreen() {
             </View>
           </View>
         </View>
-        <View className="bg-white rounded-md p-4 border border-slate-200">
+        <View className="bg-white rounded-md mt-4 p-4 border border-slate-200">
           <View className="flex flexjustify-center items-center">
             <Image className="rounded-md w-full h-32 bg-cover" source={restaurant2} />
             <View className="pt-4 w-full">

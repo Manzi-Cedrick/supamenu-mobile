@@ -10,21 +10,21 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Animated from 'react-native-reanimated';
 import { getInitials } from '@/utils/utilities';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { removeAuthToken } from '@/utils/config';
+import { removeUserInfoData } from '@/proxy/local-storage';
 
 const HomeTabHeader = () => {
     const { cart } = useCartStore();
-    const { user,logout } = useAuthStore();
+    const { user, logout } = useAuthStore();
     const [dropdownVisible, setDropdownVisible] = useState(false);
-
     const fullName = user?.fullName || '';
     const displayName = fullName.length > 5 ? `${fullName.slice(0, 5)}...` : fullName;
-
-    
     const initials = getInitials(fullName);
+    
     const handleLogout = () => {
         logout();
-        AsyncStorage.removeItem('user');
-        AsyncStorage.removeItem('token');
+        removeAuthToken();
+        removeUserInfoData();
         router.push('/(auth)/login');
     };
 
@@ -42,8 +42,8 @@ const HomeTabHeader = () => {
                 </View>
             </View>
             <Animated.View className='flex fixed flex-row justify-center items-center'>
-                <Image source={require('@/assets/images/icon.png')} className="w-4 h-4 rounded-md" />
-                <Text className='text-[12px] ml-2 font-bold text-primary'>Supa<Text className='text-black'>Menu</Text></Text>
+                <Image source={require('@/assets/images/icon.png')} className="w-12 h-12 rounded-md" />
+                <Text className='text-sm font-bold text-primary'>Supa<Text className='text-black'>Menu</Text></Text>
             </Animated.View>
             <View className='relative flex flex-row justify-center place-items-center items-center'>
                 <View className='h-12 w-12 flex justify-center flex-col items-center bg-transparent'>

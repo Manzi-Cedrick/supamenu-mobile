@@ -7,6 +7,7 @@ import SkeletonLoaderRestaurant from './SkeletonRestaurant'
 
 const SingleRestaurant = (item: IRestaurant) => {
     const [isLoading, setIsLoading] = useState(true);
+    const restaurant1 = require("@/assets/images/restaurants/restaurant1.png");
 
     useEffect(() => {
         const loadImage = async () => {
@@ -24,7 +25,7 @@ const SingleRestaurant = (item: IRestaurant) => {
         <Pressable onPress={() => router.push(`/(home)/(restaurant)/${item.title.toString()}`)}>
             <View className="bg-white border border-zinc-200 shadow-md shadow-[#edededbf] rounded-md my-2 p-4">
                 <View className="flex justify-center items-center">
-                    <Image className="rounded-md w-full h-32 bg-cover" source={{ uri: item.thumbnail }} />
+                    <Image className="rounded-md w-full h-32 bg-cover" source={restaurant1} />
                     <View className="pt-4 w-full">
                         <View className="flex flex-row justify-between">
                             <View>

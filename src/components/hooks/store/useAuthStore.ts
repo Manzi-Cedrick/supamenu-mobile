@@ -1,5 +1,5 @@
 import { IUser } from "@/types"
-import { EXPO_PUBLIC_API_URL } from "@/utils/config";
+import { EXPO_PUBLIC_API_URL, http } from "@/utils/config";
 import { create } from 'zustand';
 
 interface IAuthState {
@@ -9,7 +9,7 @@ interface IAuthState {
     user: IUser | null
     token: string | null
     setUser: (user: IUser) => void;
-    setToken: (token: string) => void;
+    setToken: (token: string | null) => void;
 }
 
 export const useAuthStore = create<IAuthState>(
@@ -18,20 +18,14 @@ export const useAuthStore = create<IAuthState>(
         token: null,
         login: async (email: String, password: String) => {
             try {
-                const response = await fetch(`${EXPO_PUBLIC_API_URL}/auth/login`, {
-                    method: 'POST',
-                    body: JSON.stringify({ email, password }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
-                if (response.status === 200 && data.body && data.token) {
-                    set({ user: data.body, token: data.token });
-                    return data;
+                const response = await http.post('/auth/login', { email, password });
+                console.log('Login response:', response);
+                if (response.status === 200 && response.data.body && response.data.token) {
+                    set({ user: response.data.body, token: response.data.token });
+                    return response.data;
                 } else {
-                    // console.error('Login error:', data.message);
-                    return data;
+                    console.error('Login error:', response.data.message);
+                    return response.data;
                 }
             } catch (error) {
                 console.error('Unexpected error: ', error);
@@ -62,6 +56,6 @@ export const useAuthStore = create<IAuthState>(
             }
         },
         setUser: (user: IUser) => set({ user }),
-        setToken: (token: string) => set({ token }),
+        setToken: (token: string | null) => set({ token }),
     })
 );

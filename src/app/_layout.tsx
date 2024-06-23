@@ -4,15 +4,17 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import { Slot, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/components/hooks/store/useAuthStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PaperProvider } from 'react-native-paper';
+import { ActivityIndicator, PaperProvider } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import { NativeWindStyleSheet } from 'nativewind';
+import { getDecryptToken, getUserInfoData } from '@/proxy/local-storage';
+import { View } from 'react-native';
 
 export {
   ErrorBoundary,
@@ -63,23 +65,44 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { setUser, setToken } = useAuthStore();
+  const [authChecked, setAuthChecked] = useState(false);
+  const [initialRoute, setInitialRoute] = useState<string | null>(null);
+
 
   useEffect(() => {
     const initializeAuthState = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      const storedToken = await AsyncStorage.getItem('token');
-
-      if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      } else {
-        router.push('/(auth)/login');
+      try {
+        const token = await getDecryptToken();
+        const storedUser = await getUserInfoData();
+        if (token && storedUser) {
+          setUser(JSON.parse(storedUser));
+          setToken(token);
+          setInitialRoute('/(home)/(tabs)/');
+        } else {
+          setInitialRoute('/(auth)/login');
+        }
+      } finally {
+        setAuthChecked(true);
+        await SplashScreen.hideAsync();
       }
-      await SplashScreen.hideAsync();
     };
 
     initializeAuthState();
   }, []);
+
+  useEffect(() => {
+    if (authChecked && initialRoute) {
+      router.push(initialRoute);
+    }
+  }, [authChecked, initialRoute]);
+
+  if (!authChecked) {
+    return (
+      <View className='bg-white flex flex-1'>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <PaperProvider>
