@@ -20,8 +20,8 @@ const Login = () => {
   const { login } = useAuthStore()
 
   const validateSchema = z.object({
-    email: z.string().email('Invalid email format').min(6, { message: 'Email must be at least 6 characters!' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters!' })
+    email: z.string().email('Invalid email format').min(6, { message: 'Email must be at least 6 characters!' }).trim().nonempty('Email cannot be empty'),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters!' }).trim().nonempty('Password cannot be empty')
   });
 
   const { control, handleSubmit, formState: { errors }, trigger } = useForm({
